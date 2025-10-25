@@ -211,7 +211,10 @@ Kia	Rio	2017+	1.4 16v	107	114	136	145	220000	125	160	260000	OBD"></textarea>
       <p>Precio Stage 1: ${auto.precioStage1}</p>
     `;
 
-    contenedor.appendChild(card);
+    const contenedor = document.getElementById("contenedor");
+if (contenedor) {
+  contenedor.appendChild(card);
+}
   });
 </script>
 
@@ -301,5 +304,15 @@ Kia	Rio	2017+	1.4 16v	107	114	136	145	220000	125	160	260000	OBD"></textarea>
 
     populate(); updateResumen();
   </script>
+  <script>
+  window.addEventListener("load", function () {
+    const btn = document.getElementById("btnGrande");
+    if (btn) {
+      const nuevoElemento = document.createElement("span");
+      nuevoElemento.textContent = " 🚀 ¡Listo!";
+      btn.appendChild(nuevoElemento);
+    }
+  });
+</script>
 </body>
 </html>
