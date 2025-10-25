@@ -1,6 +1,6 @@
 const DATA_BASE = [
-    { marca: "Alfa Romeo", modelo: "156", generacion: "(1996 - 2007)", motor: "3.2 GTA (250 hp /300 Nm)", hpStock: 250, hpStage1: 271, hpStage2: 20, nmStock: 300, nmStage1: 325, nmStage2: 20, precio: 230000, precio2: 50, compat: "OBD" },
-    { marca: "Alfa Romeo", modelo: "159", generacion: "(2005 - 2011)", motor: "2.2 JTS (185 hp / 230 Nm)", hpStock: 185, hpStage1: 200, hpStage2: 0, nmStock: 230, nmStage1: 260, nmStage2: 0, precio: 230000, precio2: 0, compat: "" },
+    { marca: "Alfa Romeo", modelo: "156", generacion: "(1996 - 2007)", motor: "3.2 GTA (250 hp /300 Nm)", hpStock: 250, hpStage1: 271, hpStage2: 0, nmStock: 300, nmStage1: 325, nmStage2: 0, precio: 230000, precio2: 0, compat: "OBD" },
+    { marca: "Alfa Romeo", modelo: "159", generacion: "(2005 - 2011)", motor: "2.2 JTS (185 hp / 230 Nm)", hpStock: 185, hpStage1: 200, hpStage2: 0, nmStock: 230, nmStage1: 260, nmStage2: 0, precio: 230000, precio2: 0, compat: "OBD" },
     { marca: "Alfa Romeo", modelo: "159", generacion: "(2005 - 2011)", motor: "3.2 Q4 JTS (260 hp / 322 Nm)", hpStock: 260, hpStage1: null, hpStage2: null, nmStock: 322, nmStage1: null, nmStage2: null, precio: 0, precio2: 0, compat: "" },
     { marca: "Alfa Romeo", modelo: "4C", generacion: "(2013 +)", motor: "1750 TBI (240 hp/ 340 Nm)", hpStock: 240, hpStage1: null, hpStage2: null, nmStock: 340, nmStage1: null, nmStage2: null, precio: 0, precio2: 0, compat: "" },
     { marca: "Alfa Romeo", modelo: "Brera", generacion: "(2005 - 2010)", motor: "1.8 TBI (200 hp / 320 Nm)", hpStock: 200, hpStage1: null, hpStage2: null, nmStock: 320, nmStage1: null, nmStage2: null, precio: 0, precio2: 0, compat: "" },
