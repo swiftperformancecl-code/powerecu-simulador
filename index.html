@@ -267,7 +267,9 @@ Kia	Rio	2017+	1.4 16v	107	114	136	145	220000	125	160	260000	OBD"></textarea>
     const admin=$('admin'), csv=$('csv'), replace=$('replace'), btnPreview=$('btnPreview'), btnImport=$('btnImport'), adminMsg=$('adminMsg');
     const eMarca=$('eMarca'), eModelo=$('eModelo'), eGen=$('eGen'), eMotor=$('eMotor'), eHpS=$('eHpS'), eHp1=$('eHp1'), eNmS=$('eNmS'), eNm1=$('eNm1'), ePrecio=$('ePrecio'), eCompat=$('eCompat'), editMsg=$('editMsg');
     const btnGuardar=$('btnGuardar'), btnEliminar=$('btnEliminar'), btnExport=$('btnExport'), btnClose=$('btnClose');
-    let pressTimer=null; $('logo').addEventListener('pointerdown',()=>{ pressTimer=setTimeout(()=>toggleAdmin(true),1200); }); $('logo').addEventListener('pointerup',()=>{ clearTimeout(pressTimer); });
+    // let pressTimer=null;
+// $('logo').addEventListener('pointerdown',()=>{ pressTimer=setTimeout(()=>toggleAdmin(true),1200); });
+// $('logo').addEventListener('pointerup',()=>{ clearTimeout(pressTimer); });
     document.addEventListener('keydown',e=>{ if(e.altKey && (e.key==='i'||e.key==='I')) toggleAdmin(true); });
     function toggleAdmin(show){ admin.style.display=show?'block':'none'; if(show){ populateEditor(); adminMsg.textContent=''; editMsg.textContent=''; } }
     function parseNumber(x){ if(x==null) return 0; const s=(''+x).replace(/[^0-9.-]/g,''); return Number(s||0); }
