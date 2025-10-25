@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es" translate="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>PowerECU – Selector Stage 1/2 (v3.5 definitivo)</title>
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root{--bg:#0b0b0e;--card:#141418;--text:#e9eef5;--muted:#8b9099;--line:#22252d;--accent:#ffd400;--ok:#25D366;--err:#ef4444}
+    *{box-sizing:border-box}html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;letter-spacing:.2px;background:radial-gradient(60% 80% at 70% 10%, #12121a 0,#0b0b0e 50%);color:var(--text)}
+    .wrap{max-width:1000px;margin:24px auto;padding:0 16px 40px}
+    .brand{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+    #logo{display:block;width:100%;max-width:1000px;height:auto;border-radius:12px;box-shadow:0 0 28px rgba(255,212,0,.12);margin:0 auto 18px auto;object-fit:contain;}
+    @media (max-width:560px){ #logo{ box-shadow:0 0 18px rgba(255,212,0,.10);}}
+    .sub{color:var(--muted);font-size:13px;margin:6px 0 16px;text-align:center}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
+    @media (max-width:860px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+    label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px}
+    select,button,input{width:100%;background:#1b1e25;color:#fff;border:1px solid #2a2e37;border-radius:12px;padding:12px;font-size:15px;outline:none}
+    select:disabled,button:disabled{opacity:.55;cursor:not-allowed}
+    .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    @media (max-width:560px){.cols{grid-template-columns:1fr}}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+    .note{font-size:12px;color:var(--muted)}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    @media (max-width:720px){.kpis{grid-template-columns:repeat(2,1fr)}}
+    .kpi{background:#1a1d24;border:1px solid #2a2d35;border-radius:12px;padding:10px}
+    .kpi h3{margin:0 0 4px;font-size:12px;color:var(--muted);font-weight:600}
+    .kpi .v{font-size:20px;font-weight:800}
+    .price{font-size:24px;font-weight:900;color:var(--accent)}
+    .bar{height:8px;border-radius:999px;background:#222}
+    .bar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#ffd400,#ff7a00)}
+    .cta{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{padding:12px 16px;border-radius:12px;font-weight:800;border:0;cursor:pointer}
+    .btn-wa{background:var(--ok);color:#001a07;filter:saturate(1.05);transition:all .2s ease}
+    .btn-wa:hover{transform:translateY(-1px)}
+    .btn-copy{background:#2a2f39}
+    .btn-reset{background:#2a2f39}
+    .toggle{display:flex;align-items:center;gap:8px}
+    .toggle input{width:20px;height:20px}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    .pill{font-size:12px;color:#0b0b0e;background:var(--accent);padding:4px 8px;border-radius:999px;font-weight:800}
+    .muted{color:var(--muted)}
+    #jsErrBanner{position:fixed;left:0;right:0;top:0;background:rgba(239,68,68,.95);color:#000;padding:10px 14px;font-weight:800;display:none;z-index:9999}
+    /* Admin */
+    #admin{position:fixed;inset:auto 10px 10px auto;max-width:min(940px,96vw);background:#101216;border:1px solid #2a2d35;border-radius:14px;padding:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);display:none;z-index:50}
+    #admin h3{margin:0 0 8px;font-size:16px}
+    #admin textarea{width:100%;min-height:160px;background:#0e1116;color:#e9eef5;border:1px solid #2b2f39;border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
+    #admin .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:760px){#admin .grid2{grid-template-columns:1fr}}
+    #admin .card{background:#0f1218;border:1px solid #2a2d35;border-radius:12px;padding:12px}
+    #admin .help{font-size:12px;color:#9aa1ac;margin:6px 0}
+    #admin .ok{color:#6ee7b7} .admin-row{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div id="jsErrBanner"></div>
+
+  <!-- Panel Admin oculto (Alt+I o mantener presionado el logo 1.2s) -->
+  <div id="admin" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+    <h3 id="adminTitle">Panel admin — Importar / Editar / Exportar</h3>
+    <div class="grid2">
+      <div class="card">
+        <h4 style="margin:0 0 8px">Importar desde Excel/CSV/TSV</h4>
+        <div class="help">
+          Columnas mínimas: <b>Marca, Modelo, Generacion, Motor, HP_Stock, HP_Stage1, NM_Stock, NM_Stage1, Precio_PowerECU</b>.
+          Opcionales: <b>HP_Stage2, NM_Stage2, Precio2, Compat</b>.
+        </div>
+        <textarea id="csv" placeholder="marca	modelo	generacion	motor	hp_stock	hp_stage1	nm_stock	nm_stage1	precio_powerecu
+Kia	Rio	2017+	1.4 16v	107	114	136	145	220000	125	160	260000	OBD"></textarea>
+        <div class="admin-row">
+          <label class="small"><input type="checkbox" id="replace"/> Reemplazar DATA actual</label>
+          <button id="btnPreview">Previsualizar</button>
+          <button id="btnImport">Importar</button>
+        </div>
+        <div id="adminMsg" class="help"></div>
+      </div>
+      <div class="card">
+        <h4 style="margin:0 0 8px">Editar modelo existente</h4>
+        <div class="cols">
+          <div><label for="eMarca">Marca</label><select id="eMarca"></select></div>
+          <div><label for="eModelo">Modelo</label><select id="eModelo" disabled></select></div>
+          <div><label for="eGen">Generación</label><select id="eGen" disabled></select></div>
+          <div><label for="eMotor">Motor</label><select id="eMotor" disabled></select></div>
+        </div>
+        <div class="hr"></div>
+        <div class="cols">
+          <div><label>HP Stock</label><input id="eHpS" type="number"></div>
+          <div><label>HP Stage 1</label><input id="eHp1" type="number"></div>
+          <div><label>Nm Stock</label><input id="eNmS" type="number"></div>
+          <div><label>Nm Stage 1</label><input id="eNm1" type="number"></div>
+          <div><label>Precio</label><input id="ePrecio" type="number"></div>
+          <div><label>Compat</label><input id="eCompat" type="text" placeholder="OBD / Bench / —"></div>
+        </div>
+        <div class="admin-row">
+          <button id="btnGuardar">Guardar cambios</button>
+          <button id="btnEliminar">Eliminar modelo</button>
+          <button id="btnExport">Exportar HTML</button>
+          <button id="btnClose">Cerrar</button>
+        </div>
+        <div id="editMsg" class="help"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="brand">
+      <img id="logo" src="https://i.imgur.com/rHyEyZC.jpeg" alt="PowerECU" loading="lazy" referrerpolicy="no-referrer" />
+    </div>
+    <div class="sub">Selecciona tu vehículo, revisa ganancias y envía por WhatsApp. POP & BANG y precio con tarjeta listos.</div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="cols" role="group" aria-label="Seleccionar vehículo">
+          <div><label for="marca">Marca</label><select id="marca"><option value="">Seleccione</option></select></div>
+          <div><label for="modelo">Modelo</label><select id="modelo" disabled><option value="">Seleccione</option></select></div>
+          <div><label for="gen">Generación</label><select id="gen" disabled><option value="">Seleccione</option></select></div>
+          <div><label for="motor">Motor</label><select id="motor" disabled><option value="">Seleccione</option></select></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="cols" role="group" aria-label="Extras">
+          <div class="toggle"><input id="pop" type="checkbox" /><label for="pop">Agregar <strong>POP & BANG</strong> (+$20.000)</label></div>
+          <div class="toggle"><input id="cardpay" type="checkbox" /><label for="cardpay">Pago con tarjeta <span class="muted">(+3,8% MP)</span></label></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" role="group" aria-label="Stage">
+          <div class="toggle"><input type="radio" name="stage" id="stage1" value="1" checked /><label for="stage1"><strong>Stage 1</strong></label></div>
+          <div class="toggle"><input type="radio" name="stage" id="stage2" value="2" /><label for="stage2"><strong>Stage 2</strong></label></div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="note">Enter también envía a WhatsApp cuando todo está completo.</div>
+          <button class="btn btn-reset" id="reset">Reiniciar</button>
+        </div>
+      </div>
+
+      <div class="card" id="resumen" aria-live="polite">
+        <div class="row">
+          <div class="muted">Resumen</div>
+          <span class="pill" id="compat">—</span>
+        </div>
+        <div style="margin:6px 0 8px" id="titulo">—</div>
+
+        <div class="kpis">
+          <div class="kpi"><h3>HP Stock</h3><div class="v" id="hpS">—</div></div>
+          <div class="kpi"><h3><span id="lblHP">HP Stage 1</span></h3><div class="v" id="hp1">—</div></div>
+          <div class="kpi"><h3>Nm Stock</h3><div class="v" id="nmS">—</div></div>
+          <div class="kpi"><h3><span id="lblNM">Nm Stage 1</span></h3><div class="v" id="nm1">—</div></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="bar"><span id="barHP" style="width:0%"></span></div>
+          <div class="bar" style="margin-top:8px"><span id="barNM" style="width:0%"></span></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="muted">Ganancias estimadas</div>
+          <div><strong id="gainHP">—</strong> HP · <strong id="gainNM">—</strong> Nm</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <div class="muted">Precio Stage <span id="lblStagePrecio">1</span></div>
+            <div class="price" id="precio">—</div>
+            <table class="table small" style="margin-top:6px">
+              <thead><tr><th>Concepto</th><th class="right">Monto</th></tr></thead>
+              <tbody>
+                <tr><td>Base</td><td class="right" id="pBase">—</td></tr>
+                <tr><td>Extras</td><td class="right" id="pExtras">—</td></tr>
+                <tr><td><strong>Total efectivo / transferencia</strong></td><td class="right" id="pEfectivo">—</td></tr>
+                <tr><td>Recargo tarjeta (+3,8%)</td><td class="right" id="pRecargo">—</td></tr>
+                <tr><td><strong>Total con tarjeta</strong></td><td class="right" id="pTarjeta">—</td></tr>
+              </tbody>
+            </table>
+            <div class="note" id="notaPrecio">Completa los cuatro campos. POP & BANG y tarjeta se calculan encima.</div>
+          </div>
+          <div class="cta">
+            <button class="btn btn-wa" id="btnWA" disabled>Solicitar por WhatsApp</button>
+            <button class="btn btn-copy" id="btnCopy" disabled>Copiar resumen</button>
+          </div>
+        </div>
+
+        <div class="note" style="margin-top:8px">* Referencia estimada. Resultados dependen de ECU, combustible y estado del vehículo.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA base -->
+  <script src="PowerECU_DB.js"></script>
+  <script>
+  const contenedor = document.getElementById("contenedor-autos"); // Usa el ID real de tu contenedor
+
+  DATA_BASE.forEach(auto => {
+    const card = document.createElement("div");
+    card.className = "card-auto"; // Usa tu clase real
+
+    card.innerHTML = `
+      <h3>${auto.marca} ${auto.modelo}</h3>
+      <p>Generación: ${auto.generacion}</p>
+      <p>Motor: ${auto.motor}</p>
+      <p>HP Stock: ${auto.hpStock}</p>
+      <p>HP Stage 1: ${auto.hpStage1}</p>
+      <p>Precio Stage 1: ${auto.precioStage1}</p>
+    `;
+
+    contenedor.appendChild(card);
+  });
+</script>
+
+
+  <!-- Lógica -->
+  <script>
+    const LS_KEY='powerEcu:v3.5';
+    const $=id=>document.getElementById(id);
+    const selMarca=$("marca"), selModelo=$("modelo"), selGen=$("gen"), selMotor=$("motor");
+    const hpS=$("hpS"), hp1=$("hp1"), nmS=$("nmS"), nm1=$("nm1"), precio=$("precio"), notaPrecio=$("notaPrecio");
+    const gainHP=$("gainHP"), gainNM=$("gainNM"), barHP=$("barHP"), barNM=$("barNM"), titulo=$("titulo"), compat=$("compat");
+    const btnWA=$("btnWA"), btnCopy=$("btnCopy"), resetBtn=$("reset"), popCB=$("pop"), cardCB=$("cardpay");
+    const pBase=$("pBase"), pExtras=$("pExtras"), pEfectivo=$("pEfectivo"), pRecargo=$("pRecargo"), pTarjeta=$("pTarjeta");
+    const stageRadios = document.querySelectorAll('input[name="stage"]');
+    const fmtCLP=new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0});
+    const ROUND_BASE=1000; const uniq=arr=>[...new Set(arr)]; const empty=sel=>{sel.innerHTML='<option value="">Seleccione</option>'; sel.disabled=true}; const enable=(el,on=true)=>{el.disabled=!on};
+    function roundToBase(x){ return Math.round(x/ROUND_BASE)*ROUND_BASE; }
+    function computeBreakdown(base){ const extras=popCB.checked?20000:0; let totalEf=base+extras; let recargo=Math.round(totalEf*0.038); let totalTar=totalEf+recargo; return {base:roundToBase(base), extras:roundToBase(extras), totalEf:roundToBase(totalEf), recargo:roundToBase(recargo), totalTar:roundToBase(totalTar)}; }
+    function selectedRow(){ return DATA.find(d=> d.marca===selMarca.value && d.modelo===selModelo.value && d.generacion===selGen.value && d.motor===selMotor.value ); }
+    function banner(msg){ const b=$('jsErrBanner'); b.style.display='block'; b.textContent='⚠️ '+msg; }
+
+    let DATA = Array.isArray(DATA_BASE)? DATA_BASE.map(o=>({...o})) : [];
+    try{ const st=JSON.parse(localStorage.getItem(LS_KEY)||'{}'); if(Array.isArray(st.DATA) && st.DATA.length){ DATA=st.DATA; } }catch(_){}
+
+    function populate(){ empty(selMarca); empty(selModelo); empty(selGen); empty(selMotor); enable(selMarca,true); uniq(DATA.map(d=>d.marca)).sort().forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; selMarca.appendChild(o); }); }
+    function onMarca(){ empty(selModelo); empty(selGen); empty(selMotor); const modelos=uniq(DATA.filter(d=>d.marca===selMarca.value).map(d=>d.modelo)); modelos.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; selModelo.appendChild(o); }); enable(selModelo, modelos.length>0); updateResumen(); }
+    function onModelo(){ empty(selGen); empty(selMotor); const gens=uniq(DATA.filter(d=>d.marca===selMarca.value && d.modelo===selModelo.value).map(d=>d.generacion)); gens.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; selGen.appendChild(o); }); enable(selGen, gens.length>0); updateResumen(); }
+    function onGen(){ empty(selMotor); const motors=uniq(DATA.filter(d=>d.marca===selMarca.value && d.modelo===selModelo.value && d.generacion===selGen.value).map(d=>d.motor)); motors.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; selMotor.appendChild(o); }); enable(selMotor, motors.length>0); updateResumen(); }
+
+    function updateResumen(){
+      const row=selectedRow(); const stage=(document.querySelector('input[name="stage"]:checked')?.value||'1');
+      $('lblStagePrecio').textContent=stage; $('lblHP').textContent=`HP Stage ${stage}`; $('lblNM').textContent=`Nm Stage ${stage}`;
+      if(!row){
+        ['hpS','hp1','nmS','nm1','gainHP','gainNM','precio','pBase','pExtras','pEfectivo','pRecargo','pTarjeta'].forEach(id=>{ const el=$(id); if(el) el.textContent='—'; });
+        titulo.textContent='—'; compat.textContent='—'; barHP.style.width='0%'; barNM.style.width='0%'; btnWA.disabled=true; btnCopy.disabled=true; return;
+      }
+      const hpStage=stage==='2' ? (row.hpStage2 ?? row.hpStage1) : row.hpStage1;
+      const nmStage=stage==='2' ? (row.nmStage2 ?? row.nmStage1) : row.nmStage1;
+      const basePrice=stage==='2' ? (row.precio2 ?? row.precio) : row.precio;
+      titulo.textContent=`${row.marca} ${row.modelo} · ${row.generacion} · ${row.motor}`; compat.textContent=row.compat || '—';
+      hpS.textContent=row.hpStock; nmS.textContent=row.nmStock; hp1.textContent=hpStage; nm1.textContent=nmStage;
+      gainHP.textContent='+'+(hpStage-row.hpStock); gainNM.textContent='+'+(nmStage-row.nmStock);
+      const hpPct=Math.min(100, Math.round((hpStage/Math.max(1,row.hpStock))*100)); const nmPct=Math.min(100, Math.round((nmStage/Math.max(1,row.nmStock))*100)); barHP.style.width=hpPct+'%'; barNM.style.width=nmPct+'%';
+      const b=computeBreakdown(basePrice); precio.textContent=fmtCLP.format(b.totalEf); pBase.textContent=fmtCLP.format(b.base); pExtras.textContent=fmtCLP.format(b.extras); pEfectivo.textContent=fmtCLP.format(b.totalEf); pRecargo.textContent=fmtCLP.format(b.recargo); pTarjeta.textContent=fmtCLP.format(b.totalTar);
+      btnWA.disabled=false; btnCopy.disabled=false;
+    }
+
+    const PHONE='56939527095'; let waLock=false;
+    function resumenTexto(){ const r=selectedRow(); if(!r) return ''; const stage=(document.querySelector('input[name="stage"]:checked')?.value||'1'); const hp=stage==='2' ? (r.hpStage2 ?? r.hpStage1) : r.hpStage1; const nm=stage==='2' ? (r.nmStage2 ?? r.nmStage1) : r.nmStage1; const b=computeBreakdown(stage==='2' ? (r.precio2 ?? r.precio) : r.precio); const extrasTxt=popCB.checked?'POP & BANG':'Sin extras'; return [`Hola! Quiero agendar Stage ${stage} para mi ${r.marca} ${r.modelo} (${r.generacion}, ${r.motor}).`,`Compatibilidad: ${r.compat || '—'}`,`Stock: ${r.hpStock} HP / ${r.nmStock} Nm`,`Stage ${stage}: ${hp} HP / ${nm} Nm`,`Ganancias: +${hp-r.hpStock} HP · +${nm-r.nmStock} Nm`,`Extras: ${extrasTxt}`,`Precio (efectivo/transferencia): ${fmtCLP.format(b.totalEf)}`,`Precio (con tarjeta +3,8%): ${fmtCLP.format(b.totalTar)}`,'','¿Disponibilidad esta semana?'].join('\n'); }
+    function wa(){ if(waLock) return; waLock=true; setTimeout(()=>waLock=false,1500); const txt=resumenTexto(); if(!txt) return; const msg=encodeURIComponent(txt); const url=`https://api.whatsapp.com/send?phone=${PHONE}&text=${msg}`; const w=window.open(url,'_blank','noopener'); if(w){w.opener=null;} else {window.location.href=url;} }
+    async function copy(){ const txt=resumenTexto(); if(!txt) return; try{ await navigator.clipboard.writeText(txt); btnCopy.textContent='¡Copiado!'; setTimeout(()=>btnCopy.textContent='Copiar resumen',1200);}catch(_){ btnCopy.textContent='No se pudo copiar'; setTimeout(()=>btnCopy.textContent='Copiar resumen',1200);} }
+
+    const admin=$('admin'), csv=$('csv'), replace=$('replace'), btnPreview=$('btnPreview'), btnImport=$('btnImport'), adminMsg=$('adminMsg');
+    const eMarca=$('eMarca'), eModelo=$('eModelo'), eGen=$('eGen'), eMotor=$('eMotor'), eHpS=$('eHpS'), eHp1=$('eHp1'), eNmS=$('eNmS'), eNm1=$('eNm1'), ePrecio=$('ePrecio'), eCompat=$('eCompat'), editMsg=$('editMsg');
+    const btnGuardar=$('btnGuardar'), btnEliminar=$('btnEliminar'), btnExport=$('btnExport'), btnClose=$('btnClose');
+    let pressTimer=null; $('logo').addEventListener('pointerdown',()=>{ pressTimer=setTimeout(()=>toggleAdmin(true),1200); }); $('logo').addEventListener('pointerup',()=>{ clearTimeout(pressTimer); });
+    document.addEventListener('keydown',e=>{ if(e.altKey && (e.key==='i'||e.key==='I')) toggleAdmin(true); });
+    function toggleAdmin(show){ admin.style.display=show?'block':'none'; if(show){ populateEditor(); adminMsg.textContent=''; editMsg.textContent=''; } }
+    function parseNumber(x){ if(x==null) return 0; const s=(''+x).replace(/[^0-9.-]/g,''); return Number(s||0); }
+    function parseCSV(text){ const sep = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ','); const rows = text.trim().split(/\r?\n/).map(r=>r.split(new RegExp(sep)).map(c=>c.trim())).filter(r=>r.length && !r.every(c=>!c)); if(!rows.length) throw new Error('No hay filas.'); const norm = s=>s.toLowerCase().replace(/\s+/g,'_'); const header = rows[0].map(norm); const need=['marca','modelo','generacion','motor','hp_stock','hp_stage1','nm_stock','nm_stage1','precio_powerecu']; const hasHeader = need.every(n=>header.includes(n)); const idx = n => header.indexOf(n); const out=[]; for(let i=(hasHeader?1:0); i<rows.length; i++){ const r=rows[i]; let marca,modelo,generacion,motor,hpS,hp1,nmS,nm1,precio,hp2,nm2,precio2,compat; if(hasHeader){ marca=r[idx('marca')]; modelo=r[idx('modelo')]; generacion=r[idx('generacion')]; motor=r[idx('motor')]; hpS=parseNumber(r[idx('hp_stock')]); hp1=parseNumber(r[idx('hp_stage1')]); nmS=parseNumber(r[idx('nm_stock')]); nm1=parseNumber(r[idx('nm_stage1')]); precio=parseNumber(r[idx('precio_powerecu')]); hp2= idx('hp_stage2')>=0 ? parseNumber(r[idx('hp_stage2')]) : undefined; nm2= idx('nm_stage2')>=0 ? parseNumber(r[idx('nm_stage2')]) : undefined; precio2= idx('precio2')>=0 ? parseNumber(r[idx('precio2')]) : undefined; compat= idx('compat')>=0 ? (r[idx('compat')]||'') : ''; }else{ [marca,modelo,generacion,motor]=r; hpS=parseNumber(r[4]); hp1=parseNumber(r[5]); nmS=parseNumber(r[6]); nm1=parseNumber(r[7]); precio=parseNumber(r[8]); hp2 = r.length>9 ? parseNumber(r[9])  : undefined; nm2 = r.length>10? parseNumber(r[10]) : undefined; precio2 = r.length>11? parseNumber(r[11]) : undefined; compat = r.length>12? (r[12]||'') : ''; } const row={marca:(marca||'').trim(), modelo:(modelo||'').trim(), generacion:(generacion||'').trim(), motor:(motor||'').trim(), hpStock:hpS||0, hpStage1:hp1||0, nmStock:nmS||0, nmStage1:nm1||0, precio:precio||0, compat:compat||''}; if(Number.isFinite(hp2)) row.hpStage2=hp2; if(Number.isFinite(nm2)) row.nmStage2=nm2; if(Number.isFinite(precio2)) row.precio2=precio2; out.push(row);} return out; }
+    function setLS(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({DATA})); }catch(_){ banner('No se pudo guardar en este navegador.'); } }
+    function preview(){ try{ const arr=parseCSV(csv.value); adminMsg.innerHTML='<span class="ok">Se leerán '+arr.length+' fila(s).</span>'; }catch(err){ adminMsg.textContent=err.message; } }
+    function importNow(){ try{ const arr=parseCSV(csv.value); if(replace.checked){ DATA=arr; } else { DATA=[...DATA, ...arr]; } setLS(); csv.value=''; adminMsg.innerHTML='<span class="ok">Importadas '+arr.length+' fila(s).</span>'; populate(); populateEditor(); updateResumen(); }catch(err){ adminMsg.textContent=err.message; } }
+    function exportHTML(){ try{ const doctype='<!DOCTYPE html>'; let html=document.documentElement.outerHTML; const dataJS='const DATA_BASE = '+JSON.stringify(DATA,null,2)+';'; html=html.replace(/const\s+DATA_BASE\s*=\s*\[[\s\S]*?\];/, dataJS); html=html.replace(/const\s+LS_KEY\s*=\s*'[^']*'/, "const LS_KEY='powerEcu:v3.5:export'"); const blob=new Blob([doctype+'\n'+html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='PowerECU_v3.5_definitivo.html'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1200);}catch(err){ alert('No se pudo exportar: '+err.message); } }
+    function populateEditor(){ const setSel=(sel,vals)=>{ sel.innerHTML=''; vals.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; sel.appendChild(o); }); }; setSel(eMarca, uniq(DATA.map(d=>d.marca)).sort()); onEditMarca(); }
+    function onEditMarca(){ const modelos=uniq(DATA.filter(d=>d.marca===eMarca.value).map(d=>d.modelo)).sort(); const setSel=(sel,vals)=>{ sel.innerHTML=''; vals.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; sel.appendChild(o); }); }; setSel(eModelo, modelos); eModelo.disabled=!modelos.length; onEditModelo(); }
+    function onEditModelo(){ const gens=uniq(DATA.filter(d=>d.marca===eMarca.value && d.modelo===eModelo.value).map(d=>d.generacion)).sort(); const setSel=(sel,vals)=>{ sel.innerHTML=''; vals.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; sel.appendChild(o); }); }; setSel(eGen, gens); eGen.disabled=!gens.length; onEditGen(); }
+    function onEditGen(){ const motors=uniq(DATA.filter(d=>d.marca===eMarca.value && d.modelo===eModelo.value && d.generacion===eGen.value).map(d=>d.motor)).sort(); const setSel=(sel,vals)=>{ sel.innerHTML=''; vals.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; sel.appendChild(o); }); }; setSel(eMotor, motors); eMotor.disabled=!motors.length; loadEditFields(); }
+    function findEditRow(){ return DATA.find(d=> d.marca===eMarca.value && d.modelo===eModelo.value && d.generacion===eGen.value && d.motor===eMotor.value ); }
+    function loadEditFields(){ const r=findEditRow(); if(!r){ editMsg.textContent=''; return; } eHpS.value=r.hpStock; eHp1.value=r.hpStage1; eNmS.value=r.nmStock; eNm1.value=r.nmStage1; ePrecio.value=r.precio; eCompat.value=r.compat||''; editMsg.innerHTML='<span class="ok">Modelo cargado.</span>'; }
+    function saveEdit(){ const r=findEditRow(); if(!r){ editMsg.textContent='No se encontró el modelo.'; return; } r.hpStock=parseNumber(eHpS.value); r.hpStage1=parseNumber(eHp1.value); r.nmStock=parseNumber(eNmS.value); r.nmStage1=parseNumber(eNm1.value); r.precio=parseNumber(ePrecio.value); r.compat=(eCompat.value||'').trim(); setLS(); populate(); updateResumen(); editMsg.innerHTML='<span class="ok">Guardado.</span>'; }
+    function deleteEdit(){ const idx=DATA.findIndex(d=> d.marca===eMarca.value && d.modelo===eModelo.value && d.generacion===eGen.value && d.motor===eMotor.value ); if(idx<0){ editMsg.textContent='No se encontró el modelo.'; return; } DATA.splice(idx,1); setLS(); populateEditor(); populate(); updateResumen(); editMsg.innerHTML='<span class="ok">Eliminado.</span>'; }
+
+    eMarca.addEventListener('change',onEditMarca); eModelo.addEventListener('change',onEditModelo); eGen.addEventListener('change',onEditGen); eMotor.addEventListener('change',loadEditFields);
+    btnGuardar.addEventListener('click',saveEdit); btnEliminar.addEventListener('click',deleteEdit); btnExport.addEventListener('click',exportHTML);
+    btnPreview.addEventListener('click',preview); btnImport.addEventListener('click',importNow); btnClose.addEventListener('click',()=>toggleAdmin(false));
+
+    selMarca.addEventListener('change', onMarca); selModelo.addEventListener('change', onModelo); selGen.addEventListener('change', onGen);
+    selMotor.addEventListener('change', updateResumen);
+    stageRadios.forEach(r=>r.addEventListener('change',updateResumen));
+    popCB.addEventListener('change',updateResumen); cardCB.addEventListener('change',updateResumen);
+    $('btnWA').addEventListener('click', wa); $('btnCopy').addEventListener('click', copy);
+    $('reset').addEventListener('click', ()=>{ localStorage.removeItem(LS_KEY); location.reload(); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Enter' && !btnWA.disabled){ e.preventDefault(); wa(); } });
+
+    populate(); updateResumen();
+  </script>
+</body>
+</html>
