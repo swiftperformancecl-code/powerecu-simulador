@@ -968,6 +968,6 @@ const DATA_BASE = [
     { marca: "Volvo", modelo: "V40", generacion: "II (2015 +)", motor: "2.0 T5 (245 hp / 350 Nm)", hpStock: 245, hpStage1: null, hpStage2: null, nmStock: 350, nmStage1: null, nmStage2: null, precio: 0, precio2: 0, compat: "" },
     { marca: "Volvo", modelo: "XC90", generacion: "II (2015 - 2019)", motor: "2.0 D4 (190 hp / 400 Nm)", hpStock: 190, hpStage1: null, hpStage2: null, nmStock: 400, nmStage1: null, nmStage2: null, precio: 0, precio2: 0, compat: "" },
     { marca: "Volvo", modelo: "XC90", generacion: "II (2015 - 2019)", motor: "2.0 D5 (235 hp / 470 Nm)", hpStock: 235, hpStage1: null, hpStage2: null, nmStock: 470, nmStage1: null, nmStage2: null, precio: 0, precio2: 0, compat: "" },
-    { marca: "Volvo", modelo: "XC90", generacion: "II (2015 - 2019)", motor: "2.0 T5 (250 hp / 350 Nm)", hpStock: 250, hpStage1: null, hpStage2: null, nmStock: 350, nmStage1: null, nmStage2: null, precio: 0, precio2: 0, compat: "" }
+    { marca: "Volvo", modelo: "XC90", generacion: "II (2015 - 2019)", motor: "2.0 T5 (250 hp / 350 Nm)", hpStock: 250, hpStage1: 250, hpStage2: 0, nmStock: 350, nmStage1: 420, nmStage2: 0, precio: 450000, precio2: 0, compat: "" }
     
 ];
