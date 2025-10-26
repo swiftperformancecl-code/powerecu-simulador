@@ -232,7 +232,7 @@ if (contenedor) {
     const fmtCLP=new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0});
     const ROUND_BASE=1000; const uniq=arr=>[...new Set(arr)]; const empty=sel=>{sel.innerHTML='<option value="">Seleccione</option>'; sel.disabled=true}; const enable=(el,on=true)=>{el.disabled=!on};
     function roundToBase(x){ return Math.round(x/ROUND_BASE)*ROUND_BASE; }
-    function computeBreakdown(base){ const extras=popCB.checked?20000:0; let totalEf=base+extras; let recargo=Math.round(totalEf*0.038); let totalTar=totalEf+recargo; return {base:roundToBase(base), extras:roundToBase(extras), totalEf:roundToBase(totalEf), recargo:roundToBase(recargo), totalTar:roundToBase(totalTar)}; }
+    function computeBreakdown(base){ const extras=popCB.checked?45000:0; let totalEf=base+extras; let recargo=Math.round(totalEf*0.038); let totalTar=totalEf+recargo; return {base:roundToBase(base), extras:roundToBase(extras), totalEf:roundToBase(totalEf), recargo:roundToBase(recargo), totalTar:roundToBase(totalTar)}; }
     function selectedRow(){ return DATA.find(d=> d.marca===selMarca.value && d.modelo===selModelo.value && d.generacion===selGen.value && d.motor===selMotor.value ); }
     function banner(msg){ const b=$('jsErrBanner'); b.style.display='block'; b.textContent='⚠️ '+msg; }
 
